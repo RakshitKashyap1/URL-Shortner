@@ -1,0 +1,83 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkShrink FIXED v2</title>
+    <link rel="stylesheet" href="{% static 'shortener/style.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="background-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <main class="container">
+        <header>
+            <h1>LinkShrink</h1>
+            <p>Shorten your links, expand your reach.</p>
+        </header>
+
+        <div class="glass-card">
+            <form id="shortenForm" method="POST" action="{% url 'index' %}">
+                {% csrf_token %}
+                <div class="input-group">
+                    <input type="url" name="long_url" id="longUrl" placeholder="Paste your long URL here..." required
+                        value="{{ long_url|default:'' }}">
+                    <button type="submit" id="shortenBtn">
+                        <span class="btn-text">Shorten</span>
+                    </button>
+                </div>
+            </form>
+
+            {% if display_url %}
+            <div id="resultContainer" class="result-container">
+                <p class="label">Your Short Link:</p>
+                <div class="short-link-wrapper">
+                    <a href="{{ display_url }}" id="shortLink" target="_blank">{{ display_url }}</a>
+                    <button id="copyBtn" title="Copy to clipboard">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if error %}
+            <div id="errorContainer" class="error-container">
+                <p id="errorMessage">{{ error }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const copyBtn = document.getElementById('copyBtn');
+            const shortLink = document.getElementById('shortLink');
+
+            if (copyBtn && shortLink) {
+                copyBtn.addEventListener('click', () => {
+                    const text = shortLink.textContent.trim();
+                    navigator.clipboard.writeText(text).then(() => {
+                        const originalHtml = copyBtn.innerHTML;
+                        copyBtn.innerHTML = '<span style="color: var(--success-color); font-size: 0.8rem;">Copied!</span>';
+                        setTimeout(() => {
+                            copyBtn.innerHTML = originalHtml;
+                        }, 2000);
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>
