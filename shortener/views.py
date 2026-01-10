@@ -27,10 +27,22 @@ def index(request):
         else:
             error = "Please enter a URL"
 
+    recent_links = Link.objects.all().order_by('-created_at')[:5]
+    
+    # Pre-calculate short URLs for the template
+    formatted_recent_links = []
+    for link in recent_links:
+        formatted_recent_links.append({
+            'long_url': link.long_url,
+            'short_url': request.build_absolute_uri('/') + link.short_code,
+            'short_code': link.short_code
+        })
+
     return render(request, 'shortener/main.html', {
         'display_url': short_url, 
         'long_url': long_url,
-        'error': error
+        'error': error,
+        'recent_links': formatted_recent_links
     })
 
 def redirect_url(request, short_code):
